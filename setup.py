@@ -27,6 +27,7 @@ setup(
         ],
         'ros2mock.verb': [
             'service = ros2mock.verb.service:ServiceVerb',
+            'action = ros2mock.verb.action:ActionVerb',
         ],
     }
 )

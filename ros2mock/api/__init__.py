@@ -1,5 +1,5 @@
-from rosidl_runtime_py import message_to_yaml
-from rosidl_runtime_py.utilities import get_service
+from rosidl_runtime_py import message_to_yaml, get_action_interfaces
+from rosidl_runtime_py.utilities import get_service, get_action
 import tempfile
 import os
 
@@ -35,3 +35,24 @@ class ServiceResponseCompleter:
     def __call__(self, prefix, parsed_args, **kwargs):
         service = get_service(getattr(parsed_args, self.service_type_key))
         return [message_to_yaml(service.Response())]
+
+
+class ActionResultCompleter:
+    """Callable returning an action goal prototype."""
+
+    def __init__(self, *, action_type_key=None):
+        self.action_type_key = action_type_key
+
+    def __call__(self, prefix, parsed_args, **kwargs):
+        action = get_action(getattr(parsed_args, self.action_type_key))
+        return [message_to_yaml(action.Result())]
+
+class ActionFeedbackCompleter:
+    """Callable returning an action goal prototype."""
+
+    def __init__(self, *, action_type_key=None):
+        self.action_type_key = action_type_key
+
+    def __call__(self, prefix, parsed_args, **kwargs):
+        action = get_action(getattr(parsed_args, self.action_type_key))
+        return [message_to_yaml(action.Feedback())]

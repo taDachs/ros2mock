@@ -1,5 +1,4 @@
 import importlib
-import time
 
 import rclpy
 from ros2cli.node import NODE_NAME_PREFIX
