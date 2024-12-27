@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'mockros'
+package_name = 'ros2mock'
 
 setup(
     name=package_name,
@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['ros2cli'],
     zip_safe=True,
     maintainer='max',
     maintainer_email='max@todo.todo',
@@ -19,7 +19,14 @@ setup(
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': [
+        'ros2cli.command': [
+            'mock = ros2mock.command.mock:MockCommand',
         ],
-    },
+        'ros2cli.extension_point': [
+            'ros2mock.verb = ros2mock.verb:VerbExtension',
+        ],
+        'ros2mock.verb': [
+            'service = ros2mock.verb.service:ServiceVerb',
+        ],
+    }
 )
