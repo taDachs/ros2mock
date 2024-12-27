@@ -1,0 +1,65 @@
+{
+  "name": "ros",
+  "privileged": true,
+  "remoteUser": "max",
+  "image": "osrf/ros:humble-desktop-full",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:1": {
+      "version": "latest",
+      "configureZshAsDefaultShell": true,
+      "username": "max",
+      "userUid": "1000",
+      "userGid": "1000"
+    },
+    "ghcr.io/tadachs/devcontainer-features/neovim:latest": {},
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "packages":  "tmux"
+    },
+    "ghcr.io/devcontainers/features/node:1": {}  // for stuff like copilot, lsp
+  },
+  "workspaceFolder": "/home/max/ws",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/max/ws/src/mockros,type=bind",
+  "containerEnv": {
+    "ROS_LOCALHOST_ONLY": "1"
+  },
+  "runArgs": [
+    "--net=host",
+    "-e",
+    "DISPLAY=${env:DISPLAY}",
+    "-e",
+    "TERM=${env:TERM}",
+    "-e",
+    "SHELL=${env:SHELL}",
+    "-v",
+    "${env:SSH_AUTH_SOCK}:/tmp/ssh-agent.socket",
+    "-e",
+    "SSH_AUTH_SOCK=/tmp/ssh-agent.socket",
+    "--runtime=nvidia",
+    "--gpus=all"
+  ],
+  "mounts": [
+    {
+      "source": "/tmp/.X11-unix",
+      "target": "/tmp/.X11-unix",
+      "type": "bind",
+      "consistency": "cached"
+    },
+    {
+      "source": "/dev/dri",
+      "target": "/dev/dri",
+      "type": "bind",
+      "consistency": "cached"
+    },
+    {
+      "source": "/dev/shm",
+      "target": "/dev/shm",
+      "type": "bind",
+      "consistency": "cached"
+    }
+  ],
+  "postCreateCommand": {
+    "rosdep": "sudo apt update && sudo rosdep update && sudo rosdep install --from-paths src --ignore-src -y",
+    "video-group": "sudo usermod -aG video max",
+    "node-install": ". ${NVM_DIR}/nvm.sh && nvm install --lts",
+  }
+}
