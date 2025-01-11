@@ -75,6 +75,7 @@ def mocker(
     abort: bool,
     timeout: float | None,
 ):
+    feedbacks = feedbacks or []
     try:
         parts = action_type.split("/")
         if len(parts) == 2:
