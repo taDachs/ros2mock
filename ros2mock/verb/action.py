@@ -7,7 +7,7 @@ from ros2action.api import action_name_completer, action_type_completer
 from ros2mock.api import ActionResultCompleter, ActionFeedbackCompleter, edit_string_in_editor
 from ros2mock.verb import VerbExtension
 from rosidl_runtime_py import set_message_fields, message_to_yaml
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, GoalResponse
 import yaml
 
 
@@ -40,7 +40,10 @@ class ActionVerb(VerbExtension):
             help="Values to be used as feedback, can be used multiple times. Get returned in sequence",
         )
         arg.completer = ActionFeedbackCompleter(action_type_key="action_type")
-
+        
+        arg = parser.add_argument(
+            "--reject", action="store_true", help="Reject the goal"
+        )
         arg = parser.add_argument("--abort", action="store_true", help="Abort the goal.")
 
         arg = parser.add_argument(
@@ -61,6 +64,7 @@ class ActionVerb(VerbExtension):
             args.values,
             args.feedback,
             args.editor,
+            args.reject,
             args.abort,
             args.timeout,
         )
@@ -72,6 +76,7 @@ def mocker(
     values: str,
     feedbacks: list[str],
     editor: bool,
+    reject: bool,
     abort: bool,
     timeout: float | None,
 ):
@@ -108,8 +113,15 @@ def mocker(
     except Exception as e:
         return "Failed to populate field: {0}".format(e)
 
-    def generic_callback(goal_handle):
+    def handle_goal_callback(message):
         node.get_logger().info("Received goal request")
+        if reject:
+            node.get_logger().info("Goal rejected")
+            return GoalResponse.REJECT
+        node.get_logger().info("Goal accepted")
+        return GoalResponse.ACCEPT
+
+    def generic_callback(goal_handle):
         if editor:
             response_string = edit_string_in_editor(message_to_yaml(result))
             try:
@@ -137,7 +149,8 @@ def mocker(
         node.get_logger().info("Returned Result")
         return result
 
-    server = ActionServer(node, action_module, action_name, generic_callback)
+    server = ActionServer(node, action_module, action_name, generic_callback,
+      goal_callback=handle_goal_callback)
 
     exec = MultiThreadedExecutor()
     rclpy.spin(node, executor=exec)
