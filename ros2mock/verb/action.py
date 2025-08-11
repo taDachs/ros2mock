@@ -37,13 +37,12 @@ class ActionVerb(VerbExtension):
             "--feedback",
             nargs="?",
             action="append",
-            help="Values to be used as feedback, can be used multiple times. Get returned in sequence",
+            help="Values to be used as feedback, "
+            "can be used multiple times. Get returned in sequence",
         )
         arg.completer = ActionFeedbackCompleter(action_type_key="action_type")
-        
-        arg = parser.add_argument(
-            "--reject", action="store_true", help="Reject the goal"
-        )
+
+        arg = parser.add_argument("--reject", action="store_true", help="Reject the goal")
         arg = parser.add_argument("--abort", action="store_true", help="Abort the goal.")
 
         arg = parser.add_argument(
@@ -150,8 +149,9 @@ def mocker(
         node.get_logger().info("Returned Result")
         return result
 
-    server = ActionServer(node, action_module, action_name, generic_callback,
-      goal_callback=handle_goal_callback)
+    _ = ActionServer(
+        node, action_module, action_name, generic_callback, goal_callback=handle_goal_callback
+    )
 
     exec = MultiThreadedExecutor()
     rclpy.spin(node, executor=exec)
